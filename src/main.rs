@@ -1,5 +1,28 @@
-use crypto_bigint::Uint;
+mod random;
+mod math;
+
+use rand::RngCore;
+use random::BbsRand;
+use crypto_bigint::{U2048, Random, Uint, Limb};
 
 fn main() {
-    println!("{}", Uint::<1>::new([crypto_bigint::Limb::from(0u8)]) ^ Uint::<1>::from([crypto_bigint::Limb::from(1u8)]));
+    let mut bbs = BbsRand::new(11, 19, 3);
+    let message = "Привет, привет привет";
+    let mut key = vec![0; message.len()];
+
+    bbs.fill_bytes(&mut key);
+
+    let mut ciphered = vec![0; message.len()];
+    let mut unciphered = vec![0; message.len()];
+
+    for i in 0..message.len() {
+        ciphered[i] = message.as_bytes()[i] ^ key[i];
+        unciphered[i] = ciphered[i] ^ key[i];
+    }
+
+    println!("Message: {:?}", message.as_bytes());
+    println!("Key: {key:?}");
+    println!("Ciphered: {ciphered:?}");
+    println!("Unciphered: {unciphered:?}");
+    println!("Is equals: {}", message.as_bytes() == unciphered);
 }
